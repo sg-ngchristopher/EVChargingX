@@ -1,0 +1,167 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant light (&:where(.light, .light *));
+
+:root {
+  --color-bg-app: #0F1115;
+  --color-bg-panel: #13161C;
+  --color-bg-card: #13161C;
+  --color-bg-subtle: #0F1115;
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-text-primary: #F4F4F5;
+  --color-text-secondary: #A1A1AA;
+  --color-text-muted: #71717A;
+}
+
+html.light, [data-theme="light"] {
+  --color-bg-app: #F4F5F8;
+  --color-bg-panel: #FFFFFF;
+  --color-bg-card: #FFFFFF;
+  --color-bg-subtle: #F1F3F7;
+  --color-border: rgba(0, 0, 0, 0.1);
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #475569;
+  --color-text-muted: #64748B;
+  color-scheme: light;
+}
+
+html.dark, [data-theme="dark"] {
+  --color-bg-app: #0F1115;
+  --color-bg-panel: #13161C;
+  --color-bg-card: #13161C;
+  --color-bg-subtle: #0F1115;
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-text-primary: #F4F4F5;
+  --color-text-secondary: #A1A1AA;
+  --color-text-muted: #71717A;
+  color-scheme: dark;
+}
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+}
+
+/* Custom Leaflet Map Styles - Dark */
+.dark .leaflet-container {
+  background-color: #0F1115 !important;
+  font-family: inherit;
+}
+
+.dark .custom-leaflet-popup .leaflet-popup-content-wrapper {
+  background: #13161C !important;
+  color: #F4F4F5 !important;
+  border-radius: 12px !important;
+  padding: 4px !important;
+  box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark .custom-leaflet-popup .leaflet-popup-tip {
+  background: #13161C !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark .custom-leaflet-popup .leaflet-container a.leaflet-popup-close-button {
+  color: #a1a1aa !important;
+  padding: 6px !important;
+}
+
+.dark .custom-leaflet-popup .leaflet-container a.leaflet-popup-close-button:hover {
+  color: #ffffff !important;
+}
+
+/* Custom Leaflet Map Styles - Light */
+.light .leaflet-container {
+  background-color: #F4F5F8 !important;
+  font-family: inherit;
+}
+
+.light .custom-leaflet-popup .leaflet-popup-content-wrapper {
+  background: #FFFFFF !important;
+  color: #0F172A !important;
+  border-radius: 12px !important;
+  padding: 4px !important;
+  box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+.light .custom-leaflet-popup .leaflet-popup-tip {
+  background: #FFFFFF !important;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.light .custom-leaflet-popup .leaflet-container a.leaflet-popup-close-button {
+  color: #64748b !important;
+  padding: 6px !important;
+}
+
+.light .custom-leaflet-popup .leaflet-container a.leaflet-popup-close-button:hover {
+  color: #0f172a !important;
+}
+
+.custom-leaflet-popup .leaflet-popup-content {
+  margin: 10px 12px !important;
+  line-height: 1.4 !important;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #0F1115;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+.light ::-webkit-scrollbar-track {
+  background: #F1F3F7;
+}
+
+.light ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+.light ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
