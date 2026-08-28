@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'path';
 import dotenv from 'dotenv';
 import { createServer as createViteServer } from 'vite';
-import { app as apiSubApp } from './api/index';
+import { app as apiSubApp } from './api/index.js';
 
 // Load environment variables from .env
 dotenv.config();

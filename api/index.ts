@@ -1,7 +1,7 @@
 import express, { Request, Response, Router } from 'express';
-import ltaRouter from './lta';
-import onemapRouter from './onemap';
-import statusRouter from './status';
+import ltaRouter from './lta.js';
+import onemapRouter from './onemap.js';
+import statusRouter from './status.js';
 
 const app = express();
 app.use(express.json());
