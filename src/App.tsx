@@ -63,13 +63,13 @@ export default function App() {
     strict500mOnly: false,
   });
 
-  const [sortBy, setSortBy] = useState<SortBy>('distance_asc');
+  const [sortBy, setSortBy] = useState<SortBy>('distance');
 
   // Check backend and LTA live status on mount
   useEffect(() => {
     getBackendStatus().then((status) => {
       setBackendStatus(status);
-      if (status.services.ltaDatamall.configured) {
+      if (status && status.services && status.services.ltaDatamall && status.services.ltaDatamall.configured) {
         setDataSource('lta_live');
       }
     });
@@ -114,7 +114,6 @@ export default function App() {
 
         if (isSG) {
           setTarget({
-            id: 'current-gps-loc',
             label: 'Your Current GPS Location',
             address: `${latitude.toFixed(4)}° N, ${longitude.toFixed(4)}° E`,
             latitude,
@@ -125,7 +124,6 @@ export default function App() {
         } else {
           // Fallback to central Marina Bay with a friendly note
           setTarget({
-            id: 'simulated-loc',
             label: 'Singapore Central (Simulated GPS)',
             address: '10 Bayfront Avenue, Singapore 018956',
             postalCode: '018956',
@@ -187,18 +185,18 @@ export default function App() {
 
     // Sorting
     result.sort((a, b) => {
-      if (sortBy === 'distance_asc') {
+      if (sortBy === 'distance') {
         return (a.distanceMeters ?? 999999) - (b.distanceMeters ?? 999999);
       }
-      if (sortBy === 'available_desc') {
+      if (sortBy === 'available_bays') {
         return b.availableBays - a.availableBays;
       }
-      if (sortBy === 'speed_desc') {
+      if (sortBy === 'max_power') {
         const maxA = Math.max(...a.connectors.map((c) => c.powerKw), 0);
         const maxB = Math.max(...b.connectors.map((c) => c.powerKw), 0);
         return maxB - maxA;
       }
-      if (sortBy === 'price_asc') {
+      if (sortBy === 'price') {
         return a.pricingInfo.perKwh - b.pricingInfo.perKwh;
       }
       return 0;

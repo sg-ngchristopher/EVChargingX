@@ -9,7 +9,6 @@ import {
   Flame,
   MessageSquare
 } from 'lucide-react';
-import { CommentCount } from 'disqus-react';
 import { ChargingStation } from '../types';
 import { formatDistance, formatWalkingEta } from '../utils/geo';
 
@@ -139,18 +138,9 @@ export const StationCard: React.FC<StationCardProps> = ({
             {station.operatingHours}
           </span>
           <span>•</span>
-          <span className="flex items-center gap-1 font-mono text-[10px] hover:text-zinc-300 transition-colors">
-            <MessageSquare className="w-2.5 h-2.5 text-zinc-400" />
-            <CommentCount
-              shortname="evchargingx"
-              config={{
-                url: pageUrl,
-                identifier: `station-${station.id}`,
-                title: `${station.name} (${station.operator})`,
-              }}
-            >
-              0
-            </CommentCount>
+          <span className="flex items-center gap-1 font-mono text-[10px] text-zinc-400 hover:text-zinc-200 transition-colors">
+            <MessageSquare className="w-3 h-3 text-zinc-500" />
+            <span>Community</span>
           </span>
         </div>
 

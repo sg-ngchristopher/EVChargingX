@@ -13,7 +13,6 @@ import {
   Building2,
   MessageSquare
 } from 'lucide-react';
-import { CommentCount } from 'disqus-react';
 import { ChargingStation, Connector } from '../types';
 import { formatDistance, formatWalkingEta } from '../utils/geo';
 import { StationComments } from './StationComments';
@@ -157,18 +156,9 @@ export const StationDetailModal: React.FC<StationDetailModalProps> = ({
               }`}
             >
               <MessageSquare className="w-3.5 h-3.5" />
-              <span>Disqus Community & Reviews</span>
+              <span>Community & Reviews</span>
               <span className="px-1.5 py-0.2 rounded bg-white/10 dark:bg-white/10 light:bg-slate-200 text-[10px] font-mono">
-                <CommentCount
-                  shortname="evchargingx"
-                  config={{
-                    url: pageUrl,
-                    identifier: `station-${station.id}`,
-                    title: `${station.name} (${station.operator})`,
-                  }}
-                >
-                  Comments
-                </CommentCount>
+                Live Feed
               </span>
             </button>
           </div>

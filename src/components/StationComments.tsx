@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { DiscussionEmbed } from 'disqus-react';
 import { MessageSquare, Globe2, Sparkles, AlertCircle } from 'lucide-react';
 import { ChargingStation } from '../types';
+import { ErrorBoundary } from './ErrorBoundary';
 
 interface StationCommentsProps {
   station: ChargingStation;
@@ -64,10 +65,26 @@ export const StationComments: React.FC<StationCommentsProps> = ({ station }) => 
 
       {/* Discussion Box Container */}
       <div className="p-4 sm:p-5 rounded-xl bg-white text-slate-900 border border-white/10 shadow-inner overflow-hidden min-h-[260px]">
-        <DiscussionEmbed
-          shortname="evchargingx"
-          config={disqusConfig}
-        />
+        <ErrorBoundary
+          fallback={
+            <div className="p-4 text-center text-xs text-zinc-500 space-y-2">
+              <p>Disqus community reviews are loading or restricted in this browser environment.</p>
+              <a
+                href={pageUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block px-3 py-1 rounded bg-slate-900 text-white font-medium"
+              >
+                Open Discussion in New Window
+              </a>
+            </div>
+          }
+        >
+          <DiscussionEmbed
+            shortname="evchargingx"
+            config={disqusConfig}
+          />
+        </ErrorBoundary>
       </div>
     </div>
   );

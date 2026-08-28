@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { DiscussionEmbed, CommentCount } from 'disqus-react';
+import { DiscussionEmbed } from 'disqus-react';
 import { X, MessageSquare, Globe2, Sparkles, Zap, Users } from 'lucide-react';
+import { ErrorBoundary } from './ErrorBoundary';
 
 interface CommunityDiscussionModalProps {
   onClose: () => void;
@@ -84,10 +85,26 @@ export const CommunityDiscussionModal: React.FC<CommunityDiscussionModalProps> =
 
         {/* Disqus Embed Container */}
         <div className="p-5 sm:p-6 bg-white rounded-b-2xl text-slate-900 min-h-[350px]">
-          <DiscussionEmbed
-            shortname="evchargingx"
-            config={disqusConfig}
-          />
+          <ErrorBoundary
+            fallback={
+              <div className="p-6 text-center text-xs text-zinc-500 space-y-2">
+                <p>Disqus community discussion is loading or blocked by your browser settings.</p>
+                <a
+                  href={pageUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block px-3 py-1.5 rounded bg-slate-900 text-white font-medium"
+                >
+                  Open Forum in New Tab
+                </a>
+              </div>
+            }
+          >
+            <DiscussionEmbed
+              shortname="evchargingx"
+              config={disqusConfig}
+            />
+          </ErrorBoundary>
         </div>
       </div>
     </div>
