@@ -1,34 +1,25 @@
 import React, { useState } from 'react';
-import { DiscussionEmbed } from 'disqus-react';
-import { MessageSquare, Globe2, Sparkles, AlertCircle } from 'lucide-react';
+import { MessageSquare, ExternalLink, RefreshCw, Sparkles } from 'lucide-react';
 import { ChargingStation } from '../types';
-import { ErrorBoundary } from './ErrorBoundary';
 
 interface StationCommentsProps {
   station: ChargingStation;
+  shortname?: string;
 }
 
-export const StationComments: React.FC<StationCommentsProps> = ({ station }) => {
-  const [language, setLanguage] = useState<string>('en');
+export const StationComments: React.FC<StationCommentsProps> = ({ 
+  station, 
+  shortname = 'evchargingx' 
+}) => {
+  const [reloadKey, setReloadKey] = useState(0);
 
-  // Stable identifier and canonical URL for this station's Disqus thread
-  const pageUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/station/${station.id}`
-    : `https://ev-charging-x.vercel.app/station/${station.id}`;
-  
-  const threadIdentifier = `station-${station.id}`;
-  const threadTitle = `${station.name} (${station.operator}) - SG EV Charging Station`;
-
-  const disqusConfig = {
-    url: pageUrl,
-    identifier: threadIdentifier,
-    title: threadTitle,
-    language: language,
-  };
+  const locId = `station-${station.id}`;
+  const locTitle = `${station.name} (${station.operator}) - SG EV Charging`;
+  const embedSrc = `/disqus-embed.html?shortname=${shortname}&id=${encodeURIComponent(locId)}&title=${encodeURIComponent(locTitle)}`;
 
   return (
     <div id={`disqus-comments-${station.id}`} className="space-y-4">
-      {/* Header & Language selector */}
+      {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <div className="p-1.5 rounded-lg bg-[#0F1115] dark:bg-[#0F1115] light:bg-slate-100 text-zinc-300 dark:text-zinc-300 light:text-slate-700 border border-white/10 dark:border-white/10 light:border-slate-200">
@@ -44,47 +35,50 @@ export const StationComments: React.FC<StationCommentsProps> = ({ station }) => 
           </div>
         </div>
 
-        {/* Language selector */}
-        <div className="flex items-center gap-1.5 bg-[#0F1115] dark:bg-[#0F1115] light:bg-slate-100 px-2.5 py-1 rounded-lg border border-white/10 dark:border-white/10 light:border-slate-200 text-xs">
-          <Globe2 className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-400 light:text-slate-500" />
-          <span className="text-[10px] uppercase tracking-wider text-zinc-500 dark:text-zinc-500 light:text-slate-500">Language:</span>
-          <select
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-            className="bg-transparent text-white dark:text-white light:text-slate-900 text-xs font-medium focus:outline-none cursor-pointer"
-            aria-label="Discussion language"
+        {/* Controls */}
+        <div className="flex items-center gap-2">
+          <a
+            href={`https://${shortname}.disqus.com`}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-1 px-2.5 py-1 rounded bg-[#0F1115] dark:bg-[#0F1115] light:bg-slate-100 hover:bg-zinc-800 text-[11px] text-zinc-400 hover:text-white border border-white/10 transition-colors"
           >
-            <option value="en" className="bg-[#13161C] text-white">English</option>
-            <option value="zh_TW" className="bg-[#13161C] text-white">繁體中文 (Taiwan / HK)</option>
-            <option value="zh_CN" className="bg-[#13161C] text-white">简体中文</option>
-            <option value="ms" className="bg-[#13161C] text-white">Bahasa Melayu</option>
-            <option value="ta" className="bg-[#13161C] text-white">Tamil</option>
-          </select>
+            <span>Disqus</span>
+            <ExternalLink className="w-3 h-3 text-zinc-500" />
+          </a>
+          <button
+            onClick={() => setReloadKey((k) => k + 1)}
+            className="p-1.5 rounded-lg bg-[#0F1115] hover:bg-zinc-800 text-zinc-400 hover:text-white border border-white/10 transition-colors"
+            title="Reload comments frame"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
 
       {/* Discussion Box Container */}
-      <div className="p-4 sm:p-5 rounded-xl bg-white text-slate-900 border border-white/10 shadow-inner overflow-hidden min-h-[260px]">
-        <ErrorBoundary
-          fallback={
-            <div className="p-4 text-center text-xs text-zinc-500 space-y-2">
-              <p>Disqus community reviews are loading or restricted in this browser environment.</p>
-              <a
-                href={pageUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block px-3 py-1 rounded bg-slate-900 text-white font-medium"
-              >
-                Open Discussion in New Window
-              </a>
-            </div>
-          }
+      <div className="p-3 sm:p-4 rounded-xl bg-white text-slate-900 border border-white/10 shadow-inner overflow-hidden min-h-[300px]">
+        <iframe
+          key={`${locId}-${reloadKey}`}
+          src={embedSrc}
+          title={`Disqus Comments for ${station.name}`}
+          className="w-full min-h-[360px] md:min-h-[420px] border-0 bg-transparent"
+          loading="lazy"
+        />
+      </div>
+
+      <div className="flex items-center justify-between text-[11px] text-zinc-500 px-1">
+        <span className="flex items-center gap-1">
+          <Sparkles className="w-3 h-3 text-emerald-500" />
+          Live community moderation & driver updates
+        </span>
+        <button
+          onClick={() => setReloadKey((k) => k + 1)}
+          className="flex items-center gap-1 hover:text-zinc-300 transition-colors cursor-pointer"
         >
-          <DiscussionEmbed
-            shortname="evchargingx"
-            config={disqusConfig}
-          />
-        </ErrorBoundary>
+          <RefreshCw className="w-3 h-3" />
+          <span>Refresh Thread</span>
+        </button>
       </div>
     </div>
   );

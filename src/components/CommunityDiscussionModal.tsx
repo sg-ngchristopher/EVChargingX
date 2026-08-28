@@ -1,25 +1,20 @@
 import React, { useState } from 'react';
-import { DiscussionEmbed } from 'disqus-react';
-import { X, MessageSquare, Globe2, Sparkles, Zap, Users } from 'lucide-react';
-import { ErrorBoundary } from './ErrorBoundary';
+import { X, Users, RefreshCw, ExternalLink, Sparkles } from 'lucide-react';
 
 interface CommunityDiscussionModalProps {
   onClose: () => void;
+  shortname?: string;
 }
 
-export const CommunityDiscussionModal: React.FC<CommunityDiscussionModalProps> = ({ onClose }) => {
-  const [language, setLanguage] = useState<string>('en');
+export const CommunityDiscussionModal: React.FC<CommunityDiscussionModalProps> = ({ 
+  onClose,
+  shortname = 'evchargingx' 
+}) => {
+  const [reloadKey, setReloadKey] = useState(0);
 
-  const pageUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/community`
-    : 'https://ev-charging-x.vercel.app/community';
-
-  const disqusConfig = {
-    url: pageUrl,
-    identifier: 'sg-ev-community-general',
-    title: 'Singapore EV Charging Community - General Discussion & Driver Tips',
-    language: language,
-  };
+  const locId = 'sg-ev-community-general';
+  const locTitle = 'Singapore EV Charging Community Forum';
+  const embedSrc = `/disqus-embed.html?shortname=${shortname}&id=${encodeURIComponent(locId)}&title=${encodeURIComponent(locTitle)}`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
@@ -57,54 +52,45 @@ export const CommunityDiscussionModal: React.FC<CommunityDiscussionModalProps> =
             </button>
           </div>
 
-          {/* Language selector bar */}
+          {/* Sub-header info */}
           <div className="mt-4 flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-lg bg-[#0F1115] dark:bg-[#0F1115] light:bg-slate-50 border border-white/10 dark:border-white/10 light:border-slate-200 text-xs">
             <div className="flex items-center gap-1.5 text-zinc-400 dark:text-zinc-400 light:text-slate-600">
               <Sparkles className="w-3.5 h-3.5 text-zinc-300 dark:text-zinc-300 light:text-slate-700" />
-              <span>Powered by <strong>Disqus</strong> (@evchargingx)</span>
+              <span>Disqus Forum ID: <strong className="font-mono text-zinc-200">{shortname}</strong></span>
             </div>
 
-            <div className="flex items-center gap-1.5 bg-[#13161C] dark:bg-[#13161C] light:bg-white px-2.5 py-1 rounded border border-white/10 dark:border-white/10 light:border-slate-200">
-              <Globe2 className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-400 light:text-slate-500" />
-              <span className="text-[10px] uppercase tracking-wider text-zinc-500">Language:</span>
-              <select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                className="bg-transparent text-white dark:text-white light:text-slate-900 text-xs font-medium focus:outline-none cursor-pointer"
-                aria-label="Discussion language"
+            <div className="flex items-center gap-2">
+              <a
+                href={`https://${shortname}.disqus.com`}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-1 px-2.5 py-1 rounded bg-[#13161C] hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs border border-white/10 transition-colors"
               >
-                <option value="en" className="bg-[#13161C] text-white">English</option>
-                <option value="zh_TW" className="bg-[#13161C] text-white">繁體中文 (Traditional Chinese)</option>
-                <option value="zh_CN" className="bg-[#13161C] text-white">简体中文 (Simplified Chinese)</option>
-                <option value="ms" className="bg-[#13161C] text-white">Bahasa Melayu</option>
-                <option value="ta" className="bg-[#13161C] text-white">Tamil</option>
-              </select>
+                <span>Open in Disqus</span>
+                <ExternalLink className="w-3 h-3 text-zinc-400" />
+              </a>
+
+              <button
+                onClick={() => setReloadKey((k) => k + 1)}
+                className="flex items-center gap-1 px-2.5 py-1 rounded bg-[#13161C] hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs border border-white/10 transition-colors"
+                title="Reload discussion thread"
+              >
+                <RefreshCw className="w-3 h-3" />
+                <span>Reload</span>
+              </button>
             </div>
           </div>
         </div>
 
-        {/* Disqus Embed Container */}
-        <div className="p-5 sm:p-6 bg-white rounded-b-2xl text-slate-900 min-h-[350px]">
-          <ErrorBoundary
-            fallback={
-              <div className="p-6 text-center text-xs text-zinc-500 space-y-2">
-                <p>Disqus community discussion is loading or blocked by your browser settings.</p>
-                <a
-                  href={pageUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block px-3 py-1.5 rounded bg-slate-900 text-white font-medium"
-                >
-                  Open Forum in New Tab
-                </a>
-              </div>
-            }
-          >
-            <DiscussionEmbed
-              shortname="evchargingx"
-              config={disqusConfig}
-            />
-          </ErrorBoundary>
+        {/* Disqus Iframe Embed Container */}
+        <div className="p-4 sm:p-6 bg-white rounded-b-2xl text-slate-900 min-h-[420px]">
+          <iframe
+            key={`${locId}-${reloadKey}`}
+            src={embedSrc}
+            title="Singapore EV Driver Community Discussion"
+            className="w-full min-h-[440px] border-0 bg-transparent"
+            loading="lazy"
+          />
         </div>
       </div>
     </div>

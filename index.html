@@ -12,21 +12,39 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <!-- Global error shield for third-party scripts -->
+    <!-- Global Error Shield for Third-Party Scripts -->
     <script>
-      window.addEventListener('error', function(e) {
-        if (!e.filename || e.message === 'Script error.' || /clarity\.ms|disqus\.com|google-analytics|doubleclick/i.test(e.filename || '')) {
-          e.stopImmediatePropagation();
-          return true;
+      (function() {
+        function shouldSuppress(msg, src) {
+          if (!msg || msg === 'Script error.' || msg === 'Script error' || String(msg).indexOf('Script error') !== -1) return true;
+          if (src && (src.indexOf('disqus') !== -1 || src.indexOf('disquscdn') !== -1)) return true;
+          return false;
         }
-      }, true);
-      window.addEventListener('unhandledrejection', function(e) {
-        var reason = e.reason && (e.reason.message || String(e.reason));
-        if (!reason || /Script error|disqus|clarity|Failed to fetch/i.test(reason)) {
-          e.stopImmediatePropagation();
-          return true;
-        }
-      }, true);
+
+        var origOnError = window.onerror;
+        window.onerror = function(msg, url, line, col, err) {
+          if (shouldSuppress(msg, url)) return true;
+          if (typeof origOnError === 'function') return origOnError.apply(this, arguments);
+          return false;
+        };
+
+        window.addEventListener('error', function(event) {
+          if (shouldSuppress(event.message, event.filename)) {
+            event.stopImmediatePropagation();
+            event.preventDefault();
+            return true;
+          }
+        }, true);
+
+        window.addEventListener('unhandledrejection', function(event) {
+          var reasonStr = (event && event.reason) ? (event.reason.message || String(event.reason)) : '';
+          if (shouldSuppress(reasonStr, '')) {
+            event.stopImmediatePropagation();
+            event.preventDefault();
+            return true;
+          }
+        }, true);
+      })();
     </script>
     <!-- Microsoft Clarity Tracking Code -->
     <script type="text/javascript">

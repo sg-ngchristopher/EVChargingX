@@ -2,6 +2,10 @@
   "framework": "vite",
   "rewrites": [
     {
+      "source": "/disqus-embed.html",
+      "destination": "/disqus-embed.html"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api"
     }
