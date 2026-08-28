@@ -4,13 +4,12 @@ import {
   MapPin, 
   Navigation, 
   X, 
-  Sparkles, 
   Loader2, 
   Building2,
   ChevronRight
 } from 'lucide-react';
 import { SearchTarget, LocationMode } from '../types';
-import { searchSingaporeAddress, POPULAR_SG_LOCATIONS } from '../services/onemap';
+import { searchSingaporeAddress } from '../services/onemap';
 
 interface SearchControlProps {
   currentTarget: SearchTarget;
@@ -231,30 +230,6 @@ export const SearchControl: React.FC<SearchControlProps> = ({
           <span className="text-[10px] text-zinc-500 dark:text-zinc-500 light:text-slate-400 font-mono hidden sm:inline">
             [{currentTarget.latitude.toFixed(4)}, {currentTarget.longitude.toFixed(4)}]
           </span>
-        </div>
-
-        {/* Quick Location Preset Pills */}
-        <div className="mt-2.5 pt-2 border-t border-white/5 dark:border-white/5 light:border-slate-200 flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
-          <span className="text-[10px] text-zinc-500 dark:text-zinc-500 light:text-slate-400 uppercase tracking-widest font-semibold whitespace-nowrap mr-1 flex items-center gap-1">
-            <Sparkles className="w-3 h-3 text-zinc-400 dark:text-zinc-400 light:text-slate-500" /> Hotspots:
-          </span>
-          {POPULAR_SG_LOCATIONS.slice(0, 6).map((preset) => {
-            const isSelected = currentTarget.label === preset.label;
-            return (
-              <button
-                key={preset.label}
-                id={`preset-${preset.postalCode}`}
-                onClick={() => handleSelect(preset)}
-                className={`px-2.5 py-1 rounded text-xs whitespace-nowrap transition-all flex items-center gap-1 ${
-                  isSelected
-                    ? 'bg-white dark:bg-white light:bg-slate-900 text-black dark:text-black light:text-white font-bold shadow-sm'
-                    : 'bg-[#0F1115] dark:bg-[#0F1115] light:bg-slate-100 text-zinc-400 dark:text-zinc-400 light:text-slate-600 hover:text-white dark:hover:text-white light:hover:text-slate-900 hover:bg-zinc-800/80 dark:hover:bg-zinc-800/80 light:hover:bg-slate-200 border border-white/10 dark:border-white/10 light:border-slate-200'
-                }`}
-              >
-                <span>{preset.label.split('/')[0].trim()}</span>
-              </button>
-            );
-          })}
         </div>
 
       </div>
