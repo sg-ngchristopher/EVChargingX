@@ -2,7 +2,6 @@ import React from 'react';
 import { 
   Zap, 
   MapPin, 
-  Footprints, 
   Clock, 
   Navigation, 
   ArrowRight,
@@ -10,7 +9,6 @@ import {
   MessageSquare
 } from 'lucide-react';
 import { ChargingStation } from '../types';
-import { formatDistance, formatWalkingEta } from '../utils/geo';
 
 interface StationCardProps {
   station: ChargingStation;
@@ -106,33 +104,8 @@ export const StationCard: React.FC<StationCardProps> = ({
         })}
       </div>
 
-      {/* Distance, Walking ETA & Pricing Footer */}
-      <div className="mt-3.5 pt-3 border-t border-white/5 dark:border-white/5 light:border-slate-200 flex items-center justify-between gap-2 text-xs">
-        
-        {/* Distance + ETA */}
-        <div className="flex items-center gap-2 text-zinc-300 dark:text-zinc-300 light:text-slate-700">
-          <div className="flex items-center gap-1 font-bold text-white dark:text-white light:text-slate-900">
-            <Footprints className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-400 light:text-slate-500" />
-            <span>{formatDistance(station.distanceMeters ?? 0)}</span>
-          </div>
-          <span className="text-zinc-600 dark:text-zinc-600 light:text-slate-300">•</span>
-          <span className="text-zinc-400 dark:text-zinc-400 light:text-slate-500">
-            {formatWalkingEta(station.distanceMeters ?? 0)}
-          </span>
-        </div>
-
-        {/* Price / Rate indicator */}
-        <div className="text-right">
-          <span className="text-zinc-200 dark:text-zinc-200 light:text-slate-900 font-bold font-mono">
-            ${station.pricingInfo.perKwh.toFixed(2)}
-          </span>
-          <span className="text-[10px] text-zinc-500 dark:text-zinc-500 light:text-slate-400 font-normal">/kWh</span>
-        </div>
-
-      </div>
-
       {/* Action Strip on hover/focus */}
-      <div className="mt-3 pt-2.5 border-t border-white/5 dark:border-white/5 light:border-slate-200 flex items-center justify-between gap-2">
+      <div className="mt-3.5 pt-2.5 border-t border-white/5 dark:border-white/5 light:border-slate-200 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 text-[11px] text-zinc-500 dark:text-zinc-500 light:text-slate-400">
           <span className="flex items-center gap-1">
             <Clock className="w-3 h-3 text-zinc-500 dark:text-zinc-500 light:text-slate-400" />
