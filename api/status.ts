@@ -2,11 +2,7 @@ import { Request, Response, Router } from 'express';
 
 const router = Router();
 
-/**
- * GET /api/status
- * Returns connectivity status and configuration flags (without exposing secrets)
- */
-router.get('/status', (_req: Request, res: Response) => {
+export const getHealthStatus = () => {
   const hasLtaKey = Boolean(
     process.env.LTA_DATAMALL_API_KEY ||
     process.env.DATAMALL_API_KEY ||
@@ -19,8 +15,9 @@ router.get('/status', (_req: Request, res: Response) => {
     (process.env.ONEMAP_EMAIL && process.env.ONEMAP_PASSWORD)
   );
 
-  res.json({
-    status: 'online',
+  return {
+    status: 'ok',
+    uptime: typeof process.uptime === 'function' ? process.uptime() : 0,
     timestamp: new Date().toISOString(),
     services: {
       ltaDatamall: {
@@ -35,7 +32,25 @@ router.get('/status', (_req: Request, res: Response) => {
         endpoint: 'https://www.onemap.gov.sg/api/',
       },
     },
+  };
+};
+
+/**
+ * GET /health or /api/health
+ */
+router.get(['/health', '/api/health'], (_req: Request, res: Response) => {
+  res.status(200).json({
+    status: 'ok',
+    uptime: typeof process.uptime === 'function' ? process.uptime() : 0,
+    timestamp: new Date().toISOString(),
   });
+});
+
+/**
+ * GET /status or /api/status
+ */
+router.get(['/status', '/api/status'], (_req: Request, res: Response) => {
+  res.status(200).json(getHealthStatus());
 });
 
 export default router;
