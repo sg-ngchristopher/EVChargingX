@@ -109,84 +109,101 @@ export const SearchControl: React.FC<SearchControlProps> = ({
       <div className="bg-[#13161C] dark:bg-[#13161C] light:bg-white border border-white/10 dark:border-white/10 light:border-slate-200 rounded-xl p-3 shadow-2xl light:shadow-sm transition-colors duration-200">
         
         {/* Search input container */}
-        <form onSubmit={handleInstantSubmit} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-          
-          <div className="relative flex-1">
-            <button
-              type="submit"
-              className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-zinc-400 dark:text-zinc-400 light:text-slate-400 hover:text-white dark:hover:text-white light:hover:text-slate-900 transition-colors"
-              title="Search address or postal code"
+        <form onSubmit={handleInstantSubmit} className="space-y-1.5">
+          <div className="flex items-center justify-between px-0.5">
+            <label 
+              htmlFor="sg-destination-search-input" 
+              className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 dark:text-emerald-400 light:text-emerald-700 flex items-center gap-1.5"
             >
-              <Search className="w-4 h-4" />
-            </button>
-            
-            <input
-              id="sg-destination-search-input"
-              type="text"
-              value={query}
-              onChange={(e) => {
-                setQuery(e.target.value);
-                setIsOpen(true);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  handleInstantSubmit();
-                }
-              }}
-              onFocus={() => {
-                if (query.trim() || suggestions.length > 0) {
-                  setIsOpen(true);
-                }
-              }}
-              placeholder="Enter SG postal code (e.g. 018956, 528523, 730900) or address..."
-              className="w-full pl-10 pr-9 py-2.5 bg-[#0F1115] dark:bg-[#0F1115] light:bg-slate-50 border border-white/10 dark:border-white/10 light:border-slate-200 rounded-lg text-sm text-[#F4F4F5] dark:text-[#F4F4F5] light:text-slate-900 placeholder-zinc-500 dark:placeholder-zinc-500 light:placeholder-slate-400 focus:outline-none focus:border-white/40 dark:focus:border-white/40 light:focus:border-slate-400 focus:ring-1 focus:ring-white/40 dark:focus:ring-white/40 light:focus:ring-slate-400 transition-all font-sans"
-            />
-
-            {isLoading ? (
-              <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-zinc-400">
-                <Loader2 className="w-4 h-4 animate-spin text-zinc-300 dark:text-white light:text-slate-700" />
-              </div>
-            ) : query ? (
-              <button
-                type="button"
-                onClick={() => {
-                  setQuery('');
-                  setSuggestions([]);
-                }}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-400 dark:text-zinc-400 light:text-slate-400 hover:text-white dark:hover:text-white light:hover:text-slate-900"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            ) : null}
+              <MapPin className="w-3.5 h-3.5 text-emerald-400 dark:text-emerald-400 light:text-emerald-600" />
+              <span>Singapore Postal Code / Location</span>
+            </label>
+            <span className="text-[10px] text-zinc-400 dark:text-zinc-400 light:text-slate-500 font-medium">
+              Type 6-digit postal code & press Enter
+            </span>
           </div>
 
-          {/* Quick Search Action Button */}
-          <button
-            type="submit"
-            disabled={isLoading || !query.trim()}
-            className="hidden sm:flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-xs uppercase tracking-wider font-bold transition-all bg-white dark:bg-white light:bg-slate-900 text-black dark:text-black light:text-white hover:bg-zinc-200 dark:hover:bg-zinc-200 light:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none shadow-sm"
-          >
-            <span>Search</span>
-          </button>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <div className="relative flex-1 group">
+              {/* Distinctive Visual Postal Code Input Box */}
+              <div className="relative flex items-center w-full rounded-lg bg-[#0A0D14] dark:bg-[#0A0D14] light:bg-emerald-50/30 border-2 border-emerald-500/40 dark:border-emerald-500/40 light:border-emerald-500/50 hover:border-emerald-400 dark:hover:border-emerald-400 light:hover:border-emerald-600 focus-within:border-emerald-400 dark:focus-within:border-emerald-400 light:focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-500/20 shadow-inner transition-all">
+                
+                {/* Left Badge: SG Postal Code Tag */}
+                <div className="pl-3 pr-2 py-2 flex items-center gap-1.5 border-r border-emerald-500/20 dark:border-emerald-500/20 light:border-emerald-300/60 bg-emerald-500/10 dark:bg-emerald-500/10 light:bg-emerald-100/70 rounded-l-[6px] shrink-0 text-emerald-400 dark:text-emerald-400 light:text-emerald-800">
+                  <Search className="w-3.5 h-3.5" />
+                  <span className="text-[11px] font-bold tracking-wider font-mono">POSTAL</span>
+                </div>
+                
+                <input
+                  id="sg-destination-search-input"
+                  type="text"
+                  value={query}
+                  onChange={(e) => {
+                    setQuery(e.target.value);
+                    setIsOpen(true);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleInstantSubmit();
+                    }
+                  }}
+                  onFocus={() => {
+                    if (query.trim() || suggestions.length > 0) {
+                      setIsOpen(true);
+                    }
+                  }}
+                  placeholder="Enter 6-digit postal code (e.g. 018956, 528523, 730900) or address..."
+                  className="w-full px-3 py-2.5 bg-transparent rounded-r-lg text-sm text-[#F4F4F5] dark:text-[#F4F4F5] light:text-slate-900 placeholder-zinc-400 dark:placeholder-zinc-400 light:placeholder-slate-400 focus:outline-none transition-all font-sans font-medium"
+                />
 
-          {/* Quick "Near Me" button */}
-          <button
-            type="button"
-            id="quick-near-me-btn"
-            onClick={onTriggerNearMe}
-            disabled={isLocating}
-            className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs uppercase tracking-wider font-bold transition-all shadow-sm ${
-              mode === 'near_me'
-                ? 'bg-white dark:bg-white light:bg-slate-900 text-black dark:text-black light:text-white hover:bg-zinc-200 dark:hover:bg-zinc-200 light:hover:bg-slate-800'
-                : 'bg-[#0F1115] dark:bg-[#0F1115] light:bg-slate-100 hover:bg-zinc-800 dark:hover:bg-zinc-800 light:hover:bg-slate-200 text-zinc-200 dark:text-zinc-200 light:text-slate-700 border border-white/10 dark:border-white/10 light:border-slate-200'
-            }`}
-            title="Use current GPS location"
-          >
-            <Navigation className={`w-3.5 h-3.5 ${isLocating ? 'animate-spin' : ''}`} />
-            <span className="whitespace-nowrap">
-              {isLocating ? 'Locating...' : 'Use My GPS'}
-            </span>
-          </button>
+                {isLoading ? (
+                  <div className="pr-3 flex items-center pointer-events-none text-emerald-400">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  </div>
+                ) : query ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setQuery('');
+                      setSuggestions([]);
+                    }}
+                    className="pr-3 flex items-center text-zinc-400 dark:text-zinc-400 light:text-slate-400 hover:text-white dark:hover:text-white light:hover:text-slate-900"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                ) : null}
+              </div>
+            </div>
+
+            {/* Quick Search Action Button */}
+            <button
+              type="submit"
+              disabled={isLoading || !query.trim()}
+              className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg text-xs uppercase tracking-wider font-bold transition-all bg-emerald-500 hover:bg-emerald-400 text-black shadow-md shadow-emerald-900/20 active:scale-95 disabled:opacity-40 disabled:pointer-events-none shrink-0"
+            >
+              <Search className="w-3.5 h-3.5" />
+              <span>Search</span>
+            </button>
+
+            {/* Quick "Near Me" button */}
+            <button
+              type="button"
+              id="quick-near-me-btn"
+              onClick={onTriggerNearMe}
+              disabled={isLocating}
+              className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs uppercase tracking-wider font-bold transition-all shadow-sm shrink-0 ${
+                mode === 'near_me'
+                  ? 'bg-white dark:bg-white light:bg-slate-900 text-black dark:text-black light:text-white hover:bg-zinc-200 dark:hover:bg-zinc-200 light:hover:bg-slate-800'
+                  : 'bg-[#0F1115] dark:bg-[#0F1115] light:bg-slate-100 hover:bg-zinc-800 dark:hover:bg-zinc-800 light:hover:bg-slate-200 text-zinc-200 dark:text-zinc-200 light:text-slate-700 border border-white/10 dark:border-white/10 light:border-slate-200'
+              }`}
+              title="Use current GPS location"
+            >
+              <Navigation className={`w-3.5 h-3.5 ${isLocating ? 'animate-spin' : ''}`} />
+              <span className="whitespace-nowrap">
+                {isLocating ? 'Locating...' : 'Use My GPS'}
+              </span>
+            </button>
+          </div>
         </form>
 
         {/* Location Error Warning if any */}
