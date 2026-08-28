@@ -25,7 +25,8 @@ export const StationCard: React.FC<StationCardProps> = ({
   onSelect,
   radiusMeters,
 }) => {
-  const isWithin500m = (station.distanceMeters ?? Infinity) <= radiusMeters;
+  const isWithinZone = (station.distanceMeters ?? Infinity) <= radiusMeters;
+  const radiusLabel = radiusMeters >= 1000 ? `${(radiusMeters / 1000).toFixed(0)}km` : `${radiusMeters}m`;
   const isAllOccupied = station.availableBays === 0;
 
   const pageUrl = typeof window !== 'undefined'
@@ -42,11 +43,11 @@ export const StationCard: React.FC<StationCardProps> = ({
           : 'bg-[#13161C] dark:bg-[#13161C] light:bg-white hover:bg-[#181c24] dark:hover:bg-[#181c24] light:hover:bg-slate-50/80 border-white/10 dark:border-white/10 light:border-slate-200 hover:border-white/25 dark:hover:border-white/25 light:hover:border-slate-300 shadow-lg light:shadow-sm'
       }`}
     >
-      {/* 500m Strict Zone Catchment Pill */}
-      {isWithin500m && (
+      {/* Strict Zone Catchment Pill */}
+      {isWithinZone && (
         <div className="absolute -top-2.5 right-4 px-2.5 py-0.5 rounded bg-white dark:bg-white light:bg-slate-900 text-black dark:text-black light:text-white text-[10px] font-bold uppercase tracking-wider shadow-sm flex items-center gap-1">
           <span className="w-1.5 h-1.5 rounded-full bg-black dark:bg-black light:bg-emerald-400"></span>
-          Inside 500m Zone
+          Inside {radiusLabel} Zone
         </div>
       )}
 

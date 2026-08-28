@@ -30,7 +30,8 @@ export const StationDetailModal: React.FC<StationDetailModalProps> = ({
   radiusMeters,
   onToggleBayStatus,
 }) => {
-  const isWithin500m = (station.distanceMeters ?? Infinity) <= radiusMeters;
+  const isWithinZone = (station.distanceMeters ?? Infinity) <= radiusMeters;
+  const radiusLabel = radiusMeters >= 1000 ? `${(radiusMeters / 1000).toFixed(0)}km` : `${radiusMeters}m`;
   const isAllOccupied = station.availableBays === 0;
 
   // Active view tab state: 'overview' | 'discussions'
@@ -75,9 +76,9 @@ export const StationDetailModal: React.FC<StationDetailModalProps> = ({
                 <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-[#0F1115] dark:bg-[#0F1115] light:bg-slate-100 text-zinc-400 dark:text-zinc-400 light:text-slate-600 border border-white/5 dark:border-white/5 light:border-slate-200">
                   {station.carparkType}
                 </span>
-                {isWithin500m && (
+                {isWithinZone && (
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-white dark:bg-white light:bg-slate-900 text-black dark:text-black light:text-white uppercase tracking-wider">
-                    Inside 500m Zone
+                    Inside {radiusLabel} Zone
                   </span>
                 )}
               </div>

@@ -288,6 +288,8 @@ export const ChargerMap: React.FC<ChargerMapProps> = ({
     });
   };
 
+  const radiusLabel = radiusMeters >= 1000 ? `${(radiusMeters / 1000).toFixed(0)}km` : `${radiusMeters}m`;
+
   return (
     <div className="relative w-full h-full min-h-[380px] rounded-xl overflow-hidden border border-white/10 bg-[#0F1115] shadow-2xl">
       
@@ -313,11 +315,11 @@ export const ChargerMap: React.FC<ChargerMapProps> = ({
           <Layers className="w-4 h-4 text-zinc-300 dark:text-zinc-300 light:text-slate-700" />
         </button>
 
-        {/* Fit 500m Zone Boundary */}
+        {/* Fit Zone Boundary */}
         <button
           onClick={fitZoneBounds}
           className="p-2.5 rounded-lg bg-[#13161C]/90 dark:bg-[#13161C]/90 light:bg-white/90 hover:bg-[#181c24] dark:hover:bg-[#181c24] light:hover:bg-slate-100 text-zinc-300 dark:text-zinc-300 light:text-slate-700 border border-white/10 dark:border-white/10 light:border-slate-200 shadow-lg backdrop-blur-md transition-all active:scale-95"
-          title="Fit 500m zone boundary in view"
+          title={`Fit ${radiusLabel} zone boundary in view`}
         >
           <Maximize2 className="w-4 h-4 text-zinc-300 dark:text-zinc-300 light:text-slate-700" />
         </button>
@@ -368,7 +370,7 @@ export const ChargerMap: React.FC<ChargerMapProps> = ({
         <div className="h-3 w-px bg-white/10 dark:bg-white/10 light:bg-slate-200 hidden sm:block"></div>
         <div className="flex items-center gap-1 text-emerald-500 font-medium hidden sm:flex">
           <CircleDot className="w-3 h-3" />
-          <span>500m Ring</span>
+          <span>{radiusLabel} Ring</span>
         </div>
       </div>
 

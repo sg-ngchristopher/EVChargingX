@@ -61,7 +61,7 @@ export function formatDrivingEta(meters: number): string {
 export function enrichStationsWithDistance(
   stations: ChargingStation[],
   target: SearchTarget,
-  radiusMeters = 500
+  radiusMeters = 2000
 ): ChargingStation[] {
   return stations.map((station) => {
     const dist = calculateDistanceMeters(
@@ -73,6 +73,7 @@ export function enrichStationsWithDistance(
     return {
       ...station,
       distanceMeters: dist,
+      isWithinZone: dist <= radiusMeters,
       isWithin500m: dist <= radiusMeters,
     };
   });
@@ -83,7 +84,7 @@ export function enrichStationsWithDistance(
  */
 export function calculateRadiusStats(
   stations: ChargingStation[],
-  radiusMeters = 500
+  radiusMeters = 2000
 ) {
   const withinZone = stations.filter(
     (s) => (s.distanceMeters ?? Infinity) <= radiusMeters

@@ -79,17 +79,46 @@ export const SearchControl: React.FC<SearchControlProps> = ({
     onModeChange('search_destination');
   };
 
+  const handleInstantSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const trimmed = query.trim();
+    if (!trimmed) return;
+
+    // If suggestions are already available, use top suggestion
+    if (suggestions.length > 0) {
+      handleSelect(suggestions[0]);
+      return;
+    }
+
+    // Direct instant search
+    setIsLoading(true);
+    try {
+      const results = await searchSingaporeAddress(trimmed);
+      if (results.length > 0) {
+        handleSelect(results[0]);
+      }
+    } catch (err) {
+      console.error('Instant search error:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="relative z-20 w-full" ref={dropdownRef}>
       <div className="bg-[#13161C] dark:bg-[#13161C] light:bg-white border border-white/10 dark:border-white/10 light:border-slate-200 rounded-xl p-3 shadow-2xl light:shadow-sm transition-colors duration-200">
         
         {/* Search input container */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+        <form onSubmit={handleInstantSubmit} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           
           <div className="relative flex-1">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400 dark:text-zinc-400 light:text-slate-400">
+            <button
+              type="submit"
+              className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-zinc-400 dark:text-zinc-400 light:text-slate-400 hover:text-white dark:hover:text-white light:hover:text-slate-900 transition-colors"
+              title="Search address or postal code"
+            >
               <Search className="w-4 h-4" />
-            </div>
+            </button>
             
             <input
               id="sg-destination-search-input"
@@ -99,12 +128,17 @@ export const SearchControl: React.FC<SearchControlProps> = ({
                 setQuery(e.target.value);
                 setIsOpen(true);
               }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleInstantSubmit();
+                }
+              }}
               onFocus={() => {
                 if (query.trim() || suggestions.length > 0) {
                   setIsOpen(true);
                 }
               }}
-              placeholder="Enter SG postal code (e.g. 018956, 528523) or building/address..."
+              placeholder="Enter SG postal code (e.g. 018956, 528523, 730900) or address..."
               className="w-full pl-10 pr-9 py-2.5 bg-[#0F1115] dark:bg-[#0F1115] light:bg-slate-50 border border-white/10 dark:border-white/10 light:border-slate-200 rounded-lg text-sm text-[#F4F4F5] dark:text-[#F4F4F5] light:text-slate-900 placeholder-zinc-500 dark:placeholder-zinc-500 light:placeholder-slate-400 focus:outline-none focus:border-white/40 dark:focus:border-white/40 light:focus:border-slate-400 focus:ring-1 focus:ring-white/40 dark:focus:ring-white/40 light:focus:ring-slate-400 transition-all font-sans"
             />
 
@@ -126,8 +160,18 @@ export const SearchControl: React.FC<SearchControlProps> = ({
             ) : null}
           </div>
 
+          {/* Quick Search Action Button */}
+          <button
+            type="submit"
+            disabled={isLoading || !query.trim()}
+            className="hidden sm:flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-xs uppercase tracking-wider font-bold transition-all bg-white dark:bg-white light:bg-slate-900 text-black dark:text-black light:text-white hover:bg-zinc-200 dark:hover:bg-zinc-200 light:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none shadow-sm"
+          >
+            <span>Search</span>
+          </button>
+
           {/* Quick "Near Me" button */}
           <button
+            type="button"
             id="quick-near-me-btn"
             onClick={onTriggerNearMe}
             disabled={isLocating}
@@ -143,7 +187,7 @@ export const SearchControl: React.FC<SearchControlProps> = ({
               {isLocating ? 'Locating...' : 'Use My GPS'}
             </span>
           </button>
-        </div>
+        </form>
 
         {/* Location Error Warning if any */}
         {locationError && (

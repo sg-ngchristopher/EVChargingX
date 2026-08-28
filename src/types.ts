@@ -49,6 +49,7 @@ export interface ChargingStation {
   is24Hours: boolean;
   isSheltered: boolean;
   distanceMeters?: number;
+  isWithinZone?: boolean;
   isWithin500m?: boolean;
 }
 
@@ -72,7 +73,7 @@ export interface FilterState {
   minPowerKw: number;
   only24Hours: boolean;
   onlySheltered: boolean;
-  radiusMeters: number; // default 500
+  radiusMeters: number; // default 2000 (2km)
   strict500mOnly: boolean;
 }
 

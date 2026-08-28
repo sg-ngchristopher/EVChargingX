@@ -1,6 +1,6 @@
 {
   "name": "Singapore EV Charger Finder",
-  "description": "Real-time Singapore EV charging station locator with 500m radius boundary filtering, live bay availability, operator filters, and geolocation search.",
+  "description": "Real-time Singapore EV charging station locator with 2km radius catchment boundary filtering, live bay availability, operator filters, and geolocation search.",
   "requestFramePermissions": ["geolocation"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

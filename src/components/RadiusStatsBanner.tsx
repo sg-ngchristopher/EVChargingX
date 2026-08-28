@@ -32,7 +32,8 @@ export const RadiusStatsBanner: React.FC<RadiusStatsBannerProps> = ({
     ? [...stats.withinZoneStations].sort((a, b) => (a.distanceMeters ?? 0) - (b.distanceMeters ?? 0))[0]
     : null;
 
-  const is500mStrict = radiusMeters === 500;
+  const radiusLabel = radiusMeters >= 1000 ? `${(radiusMeters / 1000).toFixed(0)}km` : `${radiusMeters}m`;
+  const is2kmStrict = radiusMeters === 2000;
 
   return (
     <section 
@@ -52,7 +53,7 @@ export const RadiusStatsBanner: React.FC<RadiusStatsBannerProps> = ({
           </span>
           <div className="text-[11px] font-bold uppercase tracking-widest text-zinc-300 dark:text-zinc-300 light:text-slate-800 flex items-center gap-1.5">
             <CircleDot className="w-3.5 h-3.5 text-emerald-500" />
-            {is500mStrict ? 'Strict 500m Zone Boundary' : `${radiusMeters}m Catchment Zone`}
+            {is2kmStrict ? 'Strict 2km Zone Boundary' : `${radiusLabel} Catchment Zone`}
           </div>
         </div>
 
@@ -99,11 +100,11 @@ export const RadiusStatsBanner: React.FC<RadiusStatsBannerProps> = ({
               {stats.totalStations}
             </span>
             <span className="text-xs font-semibold text-zinc-400 dark:text-zinc-400 light:text-slate-500 uppercase tracking-wider">
-              Hub{stats.totalStations === 1 ? '' : 's'} in 500m
+              Hub{stats.totalStations === 1 ? '' : 's'} in {radiusLabel}
             </span>
           </div>
           <div className="mt-1 text-xs text-zinc-400 dark:text-zinc-400 light:text-slate-500">
-            {stats.totalStations > 0 ? 'Within ~6 min walk radius' : 'Expand radius or change location'}
+            {stats.totalStations > 0 ? `Within ${radiusLabel} catchment zone` : 'Expand radius or change location'}
           </div>
         </div>
 
@@ -131,7 +132,7 @@ export const RadiusStatsBanner: React.FC<RadiusStatsBannerProps> = ({
       {/* Availability Breakdown Bar */}
       <div className="mt-3 pt-3 border-t border-white/5 dark:border-white/5 light:border-slate-200">
         <div className="flex items-center justify-between text-xs mb-1.5 text-zinc-400 dark:text-zinc-400 light:text-slate-600">
-          <span className="text-[11px] uppercase tracking-wider font-semibold text-zinc-300 dark:text-zinc-300 light:text-slate-800">500m Bay Status Breakdown:</span>
+          <span className="text-[11px] uppercase tracking-wider font-semibold text-zinc-300 dark:text-zinc-300 light:text-slate-800">{radiusLabel} Bay Status Breakdown:</span>
           <div className="flex items-center gap-3 text-[11px] font-mono">
             <span className="flex items-center gap-1 text-emerald-500 font-semibold">
               <span className="w-2 h-2 rounded-sm bg-emerald-500"></span>
@@ -172,7 +173,7 @@ export const RadiusStatsBanner: React.FC<RadiusStatsBannerProps> = ({
             </>
           ) : (
             <div className="w-full bg-[#0F1115] dark:bg-[#0F1115] light:bg-slate-100 text-center text-[10px] text-zinc-500 dark:text-zinc-500 light:text-slate-400 py-0.5">
-              0 Bays in 500m
+              0 Bays in {radiusLabel}
             </div>
           )}
         </div>
@@ -205,7 +206,7 @@ export const RadiusStatsBanner: React.FC<RadiusStatsBannerProps> = ({
         <div className="mt-2 p-2.5 bg-amber-950/20 dark:bg-amber-950/20 light:bg-amber-50 border border-amber-800/30 dark:border-amber-800/30 light:border-amber-200 rounded-lg text-xs text-amber-200 dark:text-amber-200 light:text-amber-800 flex items-center gap-2">
           <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0" />
           <span>
-            No EV chargers detected within 500m of <strong>{target.label}</strong>. You can expand the radius to 1.0 km or pick a nearby destination.
+            No EV chargers detected within {radiusLabel} of <strong>{target.label}</strong>. You can expand the radius or pick a nearby destination.
           </span>
         </div>
       )}

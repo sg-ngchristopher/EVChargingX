@@ -33,7 +33,7 @@ export default function App() {
   const [stations, setStations] = useState<ChargingStation[]>(INITIAL_SG_CHARGERS);
   const [target, setTarget] = useState<SearchTarget>(POPULAR_SG_LOCATIONS[0]); // Default: Marina Bay Sands
   const [locationMode, setLocationMode] = useState<LocationMode>('search_destination');
-  const [radiusMeters, setRadiusMeters] = useState<number>(500); // 500m strict boundary default
+  const [radiusMeters, setRadiusMeters] = useState<number>(2000); // 2km (2000m) strict boundary default
   const [selectedStation, setSelectedStation] = useState<ChargingStation | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isCommunityModalOpen, setIsCommunityModalOpen] = useState(false);
@@ -59,7 +59,7 @@ export default function App() {
     minPowerKw: 0,
     only24Hours: false,
     onlySheltered: false,
-    radiusMeters: 500,
+    radiusMeters: 2000,
     strict500mOnly: false,
   });
 
@@ -319,7 +319,7 @@ export default function App() {
       minPowerKw: 0,
       only24Hours: false,
       onlySheltered: false,
-      radiusMeters: 500,
+      radiusMeters: 2000,
       strict500mOnly: false,
     });
   };
@@ -349,7 +349,7 @@ export default function App() {
       {/* Main Layout Workspace */}
       <main className="flex-1 flex flex-col w-full relative">
         
-        {/* Top Controls Container (Search, 500m Radius Stats, Filter Chips) */}
+        {/* Top Controls Container (Search, Radius Stats, Filter Chips) */}
         <section aria-label="Search and zone statistics" className="flex-shrink-0 px-3 sm:px-6 py-2.5 bg-[#0F1115] dark:bg-[#0F1115] light:bg-slate-100 border-b border-white/5 dark:border-white/5 light:border-slate-200 space-y-2.5 max-w-7xl mx-auto w-full transition-colors duration-200">
           
           {/* Row 1: Search & Destination Input */}
@@ -366,7 +366,7 @@ export default function App() {
             locationError={locationError}
           />
 
-          {/* Row 2: 500-Meter Radius Aggregate Summary Card */}
+          {/* Row 2: 2km Radius Aggregate Summary Card */}
           <RadiusStatsBanner
             stations={enrichedStations}
             target={target}
@@ -400,7 +400,7 @@ export default function App() {
             }`}
           >
             <MapIcon className="w-3.5 h-3.5" />
-            <span>Map & 500m Ring</span>
+            <span>Map & {radiusMeters >= 1000 ? `${(radiusMeters / 1000).toFixed(0)}km` : `${radiusMeters}m`} Ring</span>
           </button>
 
           <button

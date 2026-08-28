@@ -67,7 +67,7 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
             <p className="text-xs text-zinc-400 dark:text-zinc-400 light:text-slate-500 flex items-center gap-1.5 mt-0.5">
               <span className={`w-1.5 h-1.5 rounded-full ${dataSource === 'lta_live' ? 'bg-emerald-400' : 'bg-emerald-500'} animate-pulse`}></span>
-              Strict 500m zone boundary • Updated {lastRefreshedTime}
+              Strict {radiusMeters >= 1000 ? `${(radiusMeters / 1000).toFixed(0)}km` : `${radiusMeters}m`} zone boundary • Updated {lastRefreshedTime}
             </p>
           </div>
         </div>
@@ -118,9 +118,10 @@ export const Header: React.FC<HeaderProps> = ({
               aria-label="Filter Radius"
               className="bg-transparent text-white dark:text-white light:text-slate-900 font-mono font-medium focus:outline-none cursor-pointer text-xs"
             >
-              <option value="500" className="bg-[#13161C] text-white">500m (Strict)</option>
+              <option value="500" className="bg-[#13161C] text-white">500 m</option>
               <option value="1000" className="bg-[#13161C] text-white">1.0 km</option>
-              <option value="2000" className="bg-[#13161C] text-white">2.0 km</option>
+              <option value="2000" className="bg-[#13161C] text-white">2.0 km (Strict Default)</option>
+              <option value="3000" className="bg-[#13161C] text-white">3.0 km</option>
               <option value="5000" className="bg-[#13161C] text-white">5.0 km (All)</option>
             </select>
           </div>
