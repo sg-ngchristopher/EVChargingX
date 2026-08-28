@@ -79,7 +79,7 @@ export const StationList: React.FC<StationListProps> = ({
       </div>
 
       {/* List Content */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-3">
+      <div className="flex-1 overflow-y-auto p-3 space-y-3 overscroll-contain touch-pan-y">
         {displayedStations.length > 0 ? (
           displayedStations.map((station) => (
             <StationCard

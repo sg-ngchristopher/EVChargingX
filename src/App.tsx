@@ -327,7 +327,7 @@ export default function App() {
   };
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-[#0F1115] dark:bg-[#0F1115] light:bg-slate-100 text-[#F4F4F5] dark:text-[#F4F4F5] light:text-slate-900 overflow-hidden font-sans transition-colors duration-200">
+    <div className="flex flex-col min-h-screen w-full lg:h-screen lg:overflow-hidden bg-[#0F1115] dark:bg-[#0F1115] light:bg-slate-100 text-[#F4F4F5] dark:text-[#F4F4F5] light:text-slate-900 font-sans transition-colors duration-200">
       
       {/* Top Application Header */}
       <Header
@@ -349,7 +349,7 @@ export default function App() {
       />
 
       {/* Main Responsive Layout Workspace */}
-      <main className="flex-1 flex flex-col min-h-0 overflow-hidden relative">
+      <main className="flex-1 flex flex-col min-h-0 lg:overflow-hidden relative">
         
         {/* Top Controls Container (Search, 500m Radius Stats, Filter Chips) */}
         <section aria-label="Search and zone statistics" className="flex-shrink-0 px-3 sm:px-6 py-2.5 bg-[#0F1115] dark:bg-[#0F1115] light:bg-slate-100 border-b border-white/5 dark:border-white/5 light:border-slate-200 space-y-2.5 max-w-7xl mx-auto w-full transition-colors duration-200">
@@ -392,10 +392,10 @@ export default function App() {
         </section>
 
         {/* Mobile View Toggle Bar (Map vs Station List) */}
-        <div className="lg:hidden flex border-b border-white/10 dark:border-white/10 light:border-slate-200 bg-[#13161C] dark:bg-[#13161C] light:bg-white px-3 py-1.5 justify-center gap-2 transition-colors duration-200">
+        <div className="lg:hidden sticky top-0 z-20 flex border-b border-white/10 dark:border-white/10 light:border-slate-200 bg-[#13161C] dark:bg-[#13161C] light:bg-white px-3 py-1.5 justify-center gap-2 transition-colors duration-200 shadow-sm">
           <button
             onClick={() => setMobileTab('map')}
-            className={`flex-1 py-1.5 px-3 rounded-lg text-xs uppercase tracking-wider font-bold flex items-center justify-center gap-1.5 transition-all ${
+            className={`flex-1 py-2 px-3 rounded-lg text-xs uppercase tracking-wider font-bold flex items-center justify-center gap-1.5 transition-all ${
               mobileTab === 'map'
                 ? 'bg-white dark:bg-white light:bg-slate-900 text-black dark:text-black light:text-white shadow-sm'
                 : 'bg-[#0F1115] dark:bg-[#0F1115] light:bg-slate-100 text-zinc-400 dark:text-zinc-400 light:text-slate-600 border border-white/5 dark:border-white/5 light:border-slate-200'
@@ -407,7 +407,7 @@ export default function App() {
 
           <button
             onClick={() => setMobileTab('list')}
-            className={`flex-1 py-1.5 px-3 rounded-lg text-xs uppercase tracking-wider font-bold flex items-center justify-center gap-1.5 transition-all ${
+            className={`flex-1 py-2 px-3 rounded-lg text-xs uppercase tracking-wider font-bold flex items-center justify-center gap-1.5 transition-all ${
               mobileTab === 'list'
                 ? 'bg-white dark:bg-white light:bg-slate-900 text-black dark:text-black light:text-white shadow-sm'
                 : 'bg-[#0F1115] dark:bg-[#0F1115] light:bg-slate-100 text-zinc-400 dark:text-zinc-400 light:text-slate-600 border border-white/5 dark:border-white/5 light:border-slate-200'
@@ -419,10 +419,10 @@ export default function App() {
         </div>
 
         {/* Split View Content Area (Map on Left/Center, Station Drawer List on Right) */}
-        <div className="flex-1 flex flex-col lg:flex-row min-h-0 overflow-hidden px-2 sm:px-6 pb-2 max-w-7xl mx-auto w-full gap-3 pt-2">
+        <div className="flex-1 flex flex-col lg:flex-row min-h-0 lg:overflow-hidden px-2 sm:px-6 pb-6 lg:pb-2 max-w-7xl mx-auto w-full gap-3 pt-2">
           
           {/* Map Container */}
-          <div className={`flex-1 h-full min-h-[300px] lg:min-h-0 relative rounded-xl overflow-hidden border border-white/10 dark:border-white/10 light:border-slate-200 ${mobileTab === 'list' ? 'hidden lg:block' : 'block'}`}>
+          <div className={`flex-1 h-[65vh] min-h-[380px] lg:h-full lg:min-h-0 relative rounded-xl overflow-hidden border border-white/10 dark:border-white/10 light:border-slate-200 ${mobileTab === 'list' ? 'hidden lg:block' : 'block'}`}>
             <ChargerMap
               target={target}
               stations={filteredStations}
@@ -433,7 +433,7 @@ export default function App() {
           </div>
 
           {/* Station Cards Drawer / Sidebar List */}
-          <div className={`w-full lg:w-[410px] xl:w-[460px] h-full flex-shrink-0 flex flex-col rounded-xl overflow-hidden border border-white/10 dark:border-white/10 light:border-slate-200 bg-[#13161C] dark:bg-[#13161C] light:bg-white shadow-2xl light:shadow-md transition-colors duration-200 ${mobileTab === 'map' ? 'hidden lg:flex' : 'flex'}`}>
+          <div className={`w-full lg:w-[410px] xl:w-[460px] min-h-[450px] lg:h-full flex-shrink-0 flex flex-col rounded-xl overflow-hidden border border-white/10 dark:border-white/10 light:border-slate-200 bg-[#13161C] dark:bg-[#13161C] light:bg-white shadow-2xl light:shadow-md transition-colors duration-200 ${mobileTab === 'map' ? 'hidden lg:flex' : 'flex'}`}>
             <StationList
               stations={filteredStations}
               selectedStation={selectedStation}
