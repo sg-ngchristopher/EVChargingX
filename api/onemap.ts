@@ -123,11 +123,15 @@ const SAMPLE_ONEMAP_LOCATIONS = [
  * Helper to get active OneMap token or API key if configured
  */
 function getOneMapCredential(): string | null {
-  return (
+  const cred = (
     process.env.ONEMAP_API_KEY ||
     process.env.ONEMAP_TOKEN ||
     null
   );
+  if (!cred && !process.env.ONEMAP_EMAIL) {
+    console.warn('[OneMap API] ONEMAP_API_KEY / ONEMAP_TOKEN / ONEMAP_EMAIL are not defined in process.env. Backend is using built-in Singapore geocoding & landmark fallback data without halting.');
+  }
+  return cred;
 }
 
 /**
