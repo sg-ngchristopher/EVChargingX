@@ -3,19 +3,15 @@ import {
   Zap, 
   MapPin, 
   Footprints, 
-  Car, 
-  CheckCircle2, 
-  AlertTriangle, 
   Clock, 
   Navigation, 
   ArrowRight,
-  ExternalLink,
-  ShieldCheck,
-  Building,
-  Flame
+  Flame,
+  MessageSquare
 } from 'lucide-react';
+import { CommentCount } from 'disqus-react';
 import { ChargingStation } from '../types';
-import { formatDistance, formatWalkingEta, formatDrivingEta } from '../utils/geo';
+import { formatDistance, formatWalkingEta } from '../utils/geo';
 
 interface StationCardProps {
   station: ChargingStation;
@@ -33,23 +29,9 @@ export const StationCard: React.FC<StationCardProps> = ({
   const isWithin500m = (station.distanceMeters ?? Infinity) <= radiusMeters;
   const isAllOccupied = station.availableBays === 0;
 
-  // Operator color palette
-  const getOperatorBadgeStyle = (op: string) => {
-    switch (op) {
-      case 'SP Mobility':
-        return 'bg-sky-950 text-sky-300 border-sky-800';
-      case 'CDG ENGIE':
-        return 'bg-teal-950 text-teal-300 border-teal-800';
-      case 'Charge+':
-        return 'bg-rose-950 text-rose-300 border-rose-800';
-      case 'Shell Recharge':
-        return 'bg-amber-950 text-amber-300 border-amber-800';
-      case 'TotalEnergies':
-        return 'bg-blue-950 text-blue-300 border-blue-800';
-      default:
-        return 'bg-slate-800 text-slate-300 border-slate-700';
-    }
-  };
+  const pageUrl = typeof window !== 'undefined'
+    ? `${window.location.origin}/station/${station.id}`
+    : `https://ev-charging-x.vercel.app/station/${station.id}`;
 
   return (
     <div
@@ -151,10 +133,26 @@ export const StationCard: React.FC<StationCardProps> = ({
 
       {/* Action Strip on hover/focus */}
       <div className="mt-3 pt-2.5 border-t border-white/5 dark:border-white/5 light:border-slate-200 flex items-center justify-between gap-2">
-        <span className="text-[11px] text-zinc-500 dark:text-zinc-500 light:text-slate-400 flex items-center gap-1">
-          <Clock className="w-3 h-3 text-zinc-500 dark:text-zinc-500 light:text-slate-400" />
-          {station.operatingHours}
-        </span>
+        <div className="flex items-center gap-2 text-[11px] text-zinc-500 dark:text-zinc-500 light:text-slate-400">
+          <span className="flex items-center gap-1">
+            <Clock className="w-3 h-3 text-zinc-500 dark:text-zinc-500 light:text-slate-400" />
+            {station.operatingHours}
+          </span>
+          <span>•</span>
+          <span className="flex items-center gap-1 font-mono text-[10px] hover:text-zinc-300 transition-colors">
+            <MessageSquare className="w-2.5 h-2.5 text-zinc-400" />
+            <CommentCount
+              shortname="evchargingx"
+              config={{
+                url: pageUrl,
+                identifier: `station-${station.id}`,
+                title: `${station.name} (${station.operator})`,
+              }}
+            >
+              0
+            </CommentCount>
+          </span>
+        </div>
 
         <div className="flex items-center gap-2">
           <a
@@ -176,7 +174,7 @@ export const StationCard: React.FC<StationCardProps> = ({
             }}
             className="px-3 py-1 rounded bg-white dark:bg-white light:bg-slate-900 hover:bg-zinc-200 dark:hover:bg-zinc-200 light:hover:bg-slate-800 text-black dark:text-black light:text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1 transition-colors shadow-sm"
           >
-            <span>Bays</span>
+            <span>Details</span>
             <ArrowRight className="w-3 h-3" />
           </button>
         </div>

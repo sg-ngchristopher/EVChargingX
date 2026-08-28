@@ -6,7 +6,8 @@ import {
   RefreshCw, 
   CircleDot,
   Sun,
-  Moon
+  Moon,
+  MessageSquare
 } from 'lucide-react';
 import { LocationMode } from '../types';
 import { useTheme } from '../context/ThemeContext';
@@ -23,6 +24,7 @@ interface HeaderProps {
   lastRefreshedTime: string;
   dataSource?: 'lta_live' | 'curated_grid';
   hasLtaKey?: boolean;
+  onOpenCommunity?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -37,6 +39,7 @@ export const Header: React.FC<HeaderProps> = ({
   lastRefreshedTime,
   dataSource = 'curated_grid',
   hasLtaKey = false,
+  onOpenCommunity,
 }) => {
   const { theme, toggleTheme } = useTheme();
 
@@ -121,6 +124,19 @@ export const Header: React.FC<HeaderProps> = ({
               <option value="5000" className="bg-[#13161C] text-white">5.0 km (All)</option>
             </select>
           </div>
+
+          {/* Community Forum Button */}
+          {onOpenCommunity && (
+            <button
+              id="community-forum-btn"
+              onClick={onOpenCommunity}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#13161C] dark:bg-[#13161C] light:bg-slate-100 hover:bg-zinc-800 dark:hover:bg-zinc-800 light:hover:bg-slate-200 text-zinc-300 dark:text-zinc-300 light:text-slate-700 border border-white/10 dark:border-white/10 light:border-slate-200 text-xs uppercase tracking-wider font-semibold transition-all active:scale-95 shadow-sm"
+              title="Open Singapore EV Drivers Community Forum (Disqus)"
+            >
+              <MessageSquare className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-400 light:text-slate-500" />
+              <span className="hidden sm:inline">Discussions</span>
+            </button>
+          )}
 
           {/* Real-time Refresh Sync Button */}
           <button

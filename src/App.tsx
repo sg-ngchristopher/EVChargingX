@@ -22,12 +22,10 @@ import { FilterBar } from './components/FilterBar';
 import { ChargerMap } from './components/ChargerMap';
 import { StationList } from './components/StationList';
 import { StationDetailModal } from './components/StationDetailModal';
+import { CommunityDiscussionModal } from './components/CommunityDiscussionModal';
 import { 
   Map as MapIcon, 
-  ListFilter, 
-  Compass, 
-  Sparkles,
-  Info
+  ListFilter
 } from 'lucide-react';
 
 export default function App() {
@@ -38,6 +36,7 @@ export default function App() {
   const [radiusMeters, setRadiusMeters] = useState<number>(500); // 500m strict boundary default
   const [selectedStation, setSelectedStation] = useState<ChargingStation | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isCommunityModalOpen, setIsCommunityModalOpen] = useState(false);
 
   // 2. Geolocation & Sync State
   const [isLocating, setIsLocating] = useState(false);
@@ -64,9 +63,38 @@ export default function App() {
     strict500mOnly: false,
   });
 
-  const [sortBy, setSortBy] = useState<SortBy>('distance');
+  const [sortBy, setSortBy] = useState<SortBy>('distance_asc');
 
-  // HTML5 Geolocation Trigger ("Mode A: Near Me")
+  // Check backend and LTA live status on mount
+  useEffect(() => {
+    getBackendStatus().then((status) => {
+      setBackendStatus(status);
+      if (status.services.ltaDatamall.configured) {
+        setDataSource('lta_live');
+      }
+    });
+  }, []);
+
+  // Fetch initial live data if available
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const liveData = await fetchLTAEVChargingPoints();
+        if (liveData && liveData.data && liveData.data.length > 0) {
+          const ltaStations: ChargingStation[] = liveData.data.map((rec: any, idx: number) =>
+            normalizeLTARecordToStation(rec, idx)
+          );
+          setStations(ltaStations);
+          setDataSource('lta_live');
+        }
+      } catch (err) {
+        console.info('Using high-fidelity Singapore EV hubs grid dataset:', err);
+      }
+    }
+    loadData();
+  }, []);
+
+  // Geolocation trigger
   const handleTriggerNearMe = useCallback(() => {
     if (!navigator.geolocation) {
       setLocationError('Geolocation is not supported by your browser.');
@@ -77,26 +105,27 @@ export default function App() {
     setLocationError(null);
 
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
+      (pos) => {
         setIsLocating(false);
+        const { latitude, longitude } = pos.coords;
 
-        // Check if inside Singapore bounds roughly (Lat 1.15 to 1.48, Lng 103.58 to 104.05)
-        const isWithinSingapore =
-          latitude >= 1.15 && latitude <= 1.48 && longitude >= 103.58 && longitude <= 104.05;
+        // Check if within reasonable Singapore bounding box
+        const isSG = latitude >= 1.15 && latitude <= 1.48 && longitude >= 103.58 && longitude <= 104.05;
 
-        if (isWithinSingapore) {
+        if (isSG) {
           setTarget({
-            label: 'My Current Location (GPS)',
-            address: `Lat ${latitude.toFixed(4)}, Lng ${longitude.toFixed(4)} (Singapore)`,
+            id: 'current-gps-loc',
+            label: 'Your Current GPS Location',
+            address: `${latitude.toFixed(4)}° N, ${longitude.toFixed(4)}° E`,
             latitude,
             longitude,
             mode: 'near_me',
           });
           setLocationMode('near_me');
         } else {
-          // If outside SG, use standard central SG location with notice
+          // Fallback to central Marina Bay with a friendly note
           setTarget({
+            id: 'simulated-loc',
             label: 'Singapore Central (Simulated GPS)',
             address: '10 Bayfront Avenue, Singapore 018956',
             postalCode: '018956',
@@ -158,18 +187,18 @@ export default function App() {
 
     // Sorting
     result.sort((a, b) => {
-      if (sortBy === 'distance') {
-        return (a.distanceMeters ?? 0) - (b.distanceMeters ?? 0);
+      if (sortBy === 'distance_asc') {
+        return (a.distanceMeters ?? 999999) - (b.distanceMeters ?? 999999);
       }
-      if (sortBy === 'available_bays') {
+      if (sortBy === 'available_desc') {
         return b.availableBays - a.availableBays;
       }
-      if (sortBy === 'max_power') {
+      if (sortBy === 'speed_desc') {
         const maxA = Math.max(...a.connectors.map((c) => c.powerKw), 0);
         const maxB = Math.max(...b.connectors.map((c) => c.powerKw), 0);
         return maxB - maxA;
       }
-      if (sortBy === 'price') {
+      if (sortBy === 'price_asc') {
         return a.pricingInfo.perKwh - b.pricingInfo.perKwh;
       }
       return 0;
@@ -178,33 +207,17 @@ export default function App() {
     return result;
   }, [enrichedStations, filters, sortBy]);
 
-  // Initial backend status & data load
-  useEffect(() => {
-    async function initBackend() {
-      const status = await getBackendStatus();
-      if (status) {
-        setBackendStatus(status);
-        const ltaRes = await fetchLTAEVChargingPoints();
-        if (ltaRes.data && ltaRes.data.length > 0) {
-          const parsedStations = ltaRes.data.map((rec, idx) => normalizeLTARecordToStation(rec, idx));
-          setStations(parsedStations);
-          setDataSource(status.services.ltaDatamall.configured ? 'lta_live' : 'curated_grid');
-          setLastRefreshedTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
-        }
-      }
-    }
-    initBackend();
-  }, []);
-
-  // Real-time LTA DataMall / fallback CPO availability sync
+  // Live Refresh Handler
   const handleRefreshData = async () => {
     setIsRefreshing(true);
 
     try {
-      const ltaRes = await fetchLTAEVChargingPoints();
-      if (ltaRes.data && ltaRes.data.length > 0) {
-        const parsedStations = ltaRes.data.map((rec, idx) => normalizeLTARecordToStation(rec, idx));
-        setStations(parsedStations);
+      const liveData = await fetchLTAEVChargingPoints();
+      if (liveData && liveData.data && liveData.data.length > 0) {
+        const ltaStations: ChargingStation[] = liveData.data.map((rec: any, idx: number) =>
+          normalizeLTARecordToStation(rec, idx)
+        );
+        setStations(ltaStations);
         setDataSource('lta_live');
         setLastRefreshedTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
         setIsRefreshing(false);
@@ -332,6 +345,7 @@ export default function App() {
         lastRefreshedTime={lastRefreshedTime}
         dataSource={dataSource}
         hasLtaKey={backendStatus?.services.ltaDatamall.configured ?? false}
+        onOpenCommunity={() => setIsCommunityModalOpen(true)}
       />
 
       {/* Main Responsive Layout Workspace */}
@@ -433,7 +447,7 @@ export default function App() {
 
       </main>
 
-      {/* Station Detail & Charging Simulator Modal */}
+      {/* Station Detail & Charging Simulator Modal (with Disqus Comments) */}
       {isDetailModalOpen && selectedStation && (
         <StationDetailModal
           station={selectedStation}
@@ -442,6 +456,13 @@ export default function App() {
           }}
           radiusMeters={radiusMeters}
           onToggleBayStatus={handleToggleBayStatus}
+        />
+      )}
+
+      {/* General Singapore EV Drivers Community Discussion Forum Modal */}
+      {isCommunityModalOpen && (
+        <CommunityDiscussionModal
+          onClose={() => setIsCommunityModalOpen(false)}
         />
       )}
 
