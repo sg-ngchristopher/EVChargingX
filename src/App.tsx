@@ -178,20 +178,18 @@ export default function App() {
     return result;
   }, [enrichedStations, filters, sortBy]);
 
-  // Initial backend status & live data load
+  // Initial backend status & data load
   useEffect(() => {
     async function initBackend() {
       const status = await getBackendStatus();
       if (status) {
         setBackendStatus(status);
-        if (status.services.ltaDatamall.configured) {
-          const ltaRes = await fetchLTAEVChargingPoints();
-          if (ltaRes.data && ltaRes.data.length > 0) {
-            const parsedStations = ltaRes.data.map((rec, idx) => normalizeLTARecordToStation(rec, idx));
-            setStations(parsedStations);
-            setDataSource('lta_live');
-            setLastRefreshedTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
-          }
+        const ltaRes = await fetchLTAEVChargingPoints();
+        if (ltaRes.data && ltaRes.data.length > 0) {
+          const parsedStations = ltaRes.data.map((rec, idx) => normalizeLTARecordToStation(rec, idx));
+          setStations(parsedStations);
+          setDataSource(status.services.ltaDatamall.configured ? 'lta_live' : 'curated_grid');
+          setLastRefreshedTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
         }
       }
     }
