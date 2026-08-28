@@ -16,7 +16,7 @@ interface RadiusStatsBannerProps {
   stations: ChargingStation[];
   target: SearchTarget;
   radiusMeters: number;
-  onFocusMapZone: () => void;
+  onFocusMapZone?: () => void;
   onSelectStation: (station: ChargingStation) => void;
 }
 
@@ -24,7 +24,6 @@ export const RadiusStatsBanner: React.FC<RadiusStatsBannerProps> = ({
   stations,
   target,
   radiusMeters,
-  onFocusMapZone,
   onSelectStation,
 }) => {
   const stats = calculateRadiusStats(stations, radiusMeters);
@@ -56,15 +55,6 @@ export const RadiusStatsBanner: React.FC<RadiusStatsBannerProps> = ({
             {is2kmStrict ? 'Strict 2km Zone Boundary' : `${radiusLabel} Catchment Zone`}
           </div>
         </div>
-
-        <button
-          id="focus-zone-map-btn"
-          onClick={onFocusMapZone}
-          className="text-xs uppercase tracking-wider font-bold text-white dark:text-white light:text-slate-900 hover:text-zinc-200 dark:hover:text-zinc-200 light:hover:text-slate-700 flex items-center gap-1.5 bg-[#0F1115] dark:bg-[#0F1115] light:bg-slate-100 hover:bg-zinc-800 dark:hover:bg-zinc-800 light:hover:bg-slate-200 border border-white/10 dark:border-white/10 light:border-slate-200 px-3 py-1.5 rounded transition-all"
-        >
-          <span>Fit Zone on Map</span>
-          <ArrowRight className="w-3 h-3 text-zinc-400 dark:text-zinc-400 light:text-slate-500" />
-        </button>
       </div>
 
       {/* Primary Metrics Grid */}

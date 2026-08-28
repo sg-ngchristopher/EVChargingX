@@ -371,10 +371,6 @@ export default function App() {
             stations={enrichedStations}
             target={target}
             radiusMeters={radiusMeters}
-            onFocusMapZone={() => {
-              // Focus mobile view on map if on small screen
-              setMobileTab('map');
-            }}
             onSelectStation={handleSelectStation}
           />
 
