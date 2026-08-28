@@ -34,8 +34,13 @@ apiRoutes.get('/evc-batch', (req: Request, res: Response) => {
   ltaRouter(req, res, () => {});
 });
 
-// Mount on both root and /api prefixes for full Vercel Serverless and Express compatibility
+// Dual mounting for root rewrite and /api prefix
 app.use('/api', apiRoutes);
 app.use('/', apiRoutes);
 
-export default app;
+// Vercel Serverless Function entrypoint export
+export default function handler(req: any, res: any) {
+  return app(req, res);
+}
+
+export { app };

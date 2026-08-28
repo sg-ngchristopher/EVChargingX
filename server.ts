@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'path';
 import dotenv from 'dotenv';
 import { createServer as createViteServer } from 'vite';
-import apiRouter from './api/index';
+import { app as apiSubApp } from './api/index';
 
 // Load environment variables from .env
 dotenv.config();
@@ -15,7 +15,7 @@ async function startServer() {
   app.use(express.json());
 
   // Mount API backend routes FIRST
-  app.use('/api', apiRouter);
+  app.use('/api', apiSubApp);
 
   // Health check endpoint
   app.get('/api/health', (_req, res) => {
