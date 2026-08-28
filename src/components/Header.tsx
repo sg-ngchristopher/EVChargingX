@@ -21,6 +21,8 @@ interface HeaderProps {
   onRefreshData: () => void;
   isRefreshing: boolean;
   lastRefreshedTime: string;
+  dataSource?: 'lta_live' | 'curated_grid';
+  hasLtaKey?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -33,6 +35,8 @@ export const Header: React.FC<HeaderProps> = ({
   onRefreshData,
   isRefreshing,
   lastRefreshedTime,
+  dataSource = 'curated_grid',
+  hasLtaKey = false,
 }) => {
   const { theme, toggleTheme } = useTheme();
 
@@ -49,13 +53,17 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="flex items-center gap-2">
               <h1 className="text-base sm:text-lg font-bold tracking-tighter uppercase text-[#F4F4F5] dark:text-[#F4F4F5] light:text-slate-900 flex items-center gap-2">
                 SG EV Charger Finder
-                <span className="text-[10px] px-2 py-0.5 rounded bg-white/5 dark:bg-white/5 light:bg-slate-100 text-zinc-300 dark:text-zinc-300 light:text-slate-700 border border-white/10 dark:border-white/10 light:border-slate-200 font-mono uppercase tracking-widest hidden sm:inline-block">
-                  Live SG Grid
+                <span className={`text-[10px] px-2 py-0.5 rounded font-mono uppercase tracking-widest hidden sm:inline-block border ${
+                  dataSource === 'lta_live' || hasLtaKey
+                    ? 'bg-emerald-500/10 text-emerald-400 dark:text-emerald-400 light:text-emerald-600 border-emerald-500/30'
+                    : 'bg-white/5 dark:bg-white/5 light:bg-slate-100 text-zinc-300 dark:text-zinc-300 light:text-slate-700 border-white/10 dark:border-white/10 light:border-slate-200'
+                }`}>
+                  {dataSource === 'lta_live' ? 'LTA DataMall Live' : 'SG EV Hubs Grid'}
                 </span>
               </h1>
             </div>
             <p className="text-xs text-zinc-400 dark:text-zinc-400 light:text-slate-500 flex items-center gap-1.5 mt-0.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span className={`w-1.5 h-1.5 rounded-full ${dataSource === 'lta_live' ? 'bg-emerald-400' : 'bg-emerald-500'} animate-pulse`}></span>
               Strict 500m zone boundary • Updated {lastRefreshedTime}
             </p>
           </div>

@@ -137,14 +137,14 @@ export async function searchSingaporeAddress(query: string): Promise<SearchTarge
   // Check if it's a 6-digit postal code
   const isPostal = /^\d{6}$/.test(trimmed);
 
-  // 1. Try real OneMap REST API
+  // 1. Try backend OneMap API service route first
   try {
     const encoded = encodeURIComponent(trimmed);
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 3500);
 
     const response = await fetch(
-      `https://www.onemap.gov.sg/api/common/elastic/search?searchVal=${encoded}&returnGeom=Y&getAddrDetails=Y&pageNum=1`,
+      `/api/onemap/search?searchVal=${encoded}&returnGeom=Y&getAddrDetails=Y&pageNum=1`,
       { signal: controller.signal }
     );
     clearTimeout(timeoutId);
@@ -171,7 +171,46 @@ export async function searchSingaporeAddress(query: string): Promise<SearchTarge
       }
     }
   } catch (error) {
-    console.warn('OneMap API request timed out or was blocked, utilizing high-precision fallback database:', error);
+    console.warn('Backend OneMap route unavailable, trying direct public query or catalog fallback:', error);
+  }
+
+  // 2. Direct public OneMap query fallback if backend returned no results
+  if (results.length === 0) {
+    try {
+      const encoded = encodeURIComponent(trimmed);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+      const response = await fetch(
+        `https://www.onemap.gov.sg/api/common/elastic/search?searchVal=${encoded}&returnGeom=Y&getAddrDetails=Y&pageNum=1`,
+        { signal: controller.signal }
+      );
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.results && Array.isArray(data.results) && data.results.length > 0) {
+          data.results.slice(0, 6).forEach((item: OneMapSearchResult) => {
+            const lat = parseFloat(item.LATITUDE);
+            const lng = parseFloat(item.LONGITUDE);
+            if (!isNaN(lat) && !isNaN(lng)) {
+              const building = item.BUILDING && item.BUILDING !== 'NIL' ? item.BUILDING : item.SEARCHVAL;
+              const postal = item.POSTAL && item.POSTAL !== 'NIL' ? item.POSTAL : '';
+              results.push({
+                label: building,
+                address: item.ADDRESS,
+                postalCode: postal,
+                latitude: lat,
+                longitude: lng,
+                mode: 'search_destination',
+              });
+            }
+          });
+        }
+      }
+    } catch {
+      // Continue to offline dictionary
+    }
   }
 
   // 2. If OneMap returned results, return them

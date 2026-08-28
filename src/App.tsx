@@ -9,6 +9,12 @@ import {
 import { INITIAL_SG_CHARGERS } from './data/mockChargers';
 import { POPULAR_SG_LOCATIONS } from './services/onemap';
 import { enrichStationsWithDistance } from './utils/geo';
+import { 
+  fetchLTAEVChargingPoints, 
+  getBackendStatus, 
+  normalizeLTARecordToStation,
+  BackendStatus 
+} from './services/backendApi';
 import { Header } from './components/Header';
 import { SearchControl } from './components/SearchControl';
 import { RadiusStatsBanner } from './components/RadiusStatsBanner';
@@ -38,6 +44,8 @@ export default function App() {
   const [locationError, setLocationError] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastRefreshedTime, setLastRefreshedTime] = useState<string>('Just now');
+  const [backendStatus, setBackendStatus] = useState<BackendStatus | null>(null);
+  const [dataSource, setDataSource] = useState<'lta_live' | 'curated_grid'>('curated_grid');
 
   // 3. Mobile View Switcher (Map vs List)
   const [mobileTab, setMobileTab] = useState<'map' | 'list'>('map');
@@ -170,13 +178,48 @@ export default function App() {
     return result;
   }, [enrichedStations, filters, sortBy]);
 
-  // Real-time Mock / LTA DataMall CPO availability sync simulation
-  const handleRefreshData = () => {
+  // Initial backend status & live data load
+  useEffect(() => {
+    async function initBackend() {
+      const status = await getBackendStatus();
+      if (status) {
+        setBackendStatus(status);
+        if (status.services.ltaDatamall.configured) {
+          const ltaRes = await fetchLTAEVChargingPoints();
+          if (ltaRes.data && ltaRes.data.length > 0) {
+            const parsedStations = ltaRes.data.map((rec, idx) => normalizeLTARecordToStation(rec, idx));
+            setStations(parsedStations);
+            setDataSource('lta_live');
+            setLastRefreshedTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+          }
+        }
+      }
+    }
+    initBackend();
+  }, []);
+
+  // Real-time LTA DataMall / fallback CPO availability sync
+  const handleRefreshData = async () => {
     setIsRefreshing(true);
+
+    try {
+      const ltaRes = await fetchLTAEVChargingPoints();
+      if (ltaRes.data && ltaRes.data.length > 0) {
+        const parsedStations = ltaRes.data.map((rec, idx) => normalizeLTARecordToStation(rec, idx));
+        setStations(parsedStations);
+        setDataSource('lta_live');
+        setLastRefreshedTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+        setIsRefreshing(false);
+        return;
+      }
+    } catch {
+      // Continue to local sync fallback
+    }
+
+    // Fallback sync simulation for local station dataset
     setTimeout(() => {
       setStations((prev) =>
         prev.map((station) => {
-          // Randomly fluctuate bay status slightly for realistic live feed experience
           const updatedConnectors = station.connectors.map((conn) => {
             const delta = Math.floor(Math.random() * 3) - 1; // -1, 0, or +1
             const newAvail = Math.max(0, Math.min(conn.total, conn.available + delta));
@@ -201,7 +244,7 @@ export default function App() {
       );
       setIsRefreshing(false);
       setLastRefreshedTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
-    }, 600);
+    }, 500);
   };
 
   // Interactive bay simulation toggle
@@ -289,6 +332,8 @@ export default function App() {
         onRefreshData={handleRefreshData}
         isRefreshing={isRefreshing}
         lastRefreshedTime={lastRefreshedTime}
+        dataSource={dataSource}
+        hasLtaKey={backendStatus?.services.ltaDatamall.configured ?? false}
       />
 
       {/* Main Responsive Layout Workspace */}
