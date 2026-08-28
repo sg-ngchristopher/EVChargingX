@@ -24,7 +24,7 @@ interface ChargerMapProps {
   onFitZoneTriggered?: () => void;
 }
 
-type TileLayerTheme = 'dark' | 'voyager' | 'osm';
+type TileLayerTheme = 'onemap' | 'dark' | 'osm';
 
 export const ChargerMap: React.FC<ChargerMapProps> = ({
   target,
@@ -41,13 +41,8 @@ export const ChargerMap: React.FC<ChargerMapProps> = ({
   const targetLayerGroupRef = useRef<L.LayerGroup | null>(null);
   const circleRadiusRef = useRef<L.Circle | null>(null);
 
-  const [tileTheme, setTileTheme] = useState<TileLayerTheme>(theme === 'dark' ? 'dark' : 'voyager');
+  const [tileTheme, setTileTheme] = useState<TileLayerTheme>('onemap');
   const [showRadiusGuide, setShowRadiusGuide] = useState(true);
-
-  // Sync map tiles with app theme changes
-  useEffect(() => {
-    setTileTheme(theme === 'dark' ? 'dark' : 'voyager');
-  }, [theme]);
 
   // Initialize Map
   useEffect(() => {
@@ -63,13 +58,12 @@ export const ChargerMap: React.FC<ChargerMapProps> = ({
     // Add attribution in a clean corner
     L.control.attribution({ position: 'bottomright' }).addTo(map);
 
-    // Initial tile layer
-    const tileUrl = getTileUrl(tileTheme);
-    const tileSubdomains = tileTheme === 'osm' ? 'abc' : 'abcd';
-    const tile = L.tileLayer(tileUrl, {
-      maxZoom: 19,
-      subdomains: tileSubdomains,
-      attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    // Initial tile layer (OneMap Singapore / OpenStreetMap with zero watermark)
+    const config = getTileConfig(tileTheme, theme === 'dark');
+    const tile = L.tileLayer(config.url, {
+      maxZoom: config.maxZoom,
+      subdomains: config.subdomains || 'abc',
+      attribution: config.attribution,
     }).addTo(map);
 
     tileLayerRef.current = tile;
@@ -91,21 +85,20 @@ export const ChargerMap: React.FC<ChargerMapProps> = ({
     };
   }, []);
 
-  // Update tile layer when theme changes
+  // Update tile layer when theme or tile layer mode changes
   useEffect(() => {
     if (!mapInstanceRef.current || !tileLayerRef.current) return;
     mapInstanceRef.current.removeLayer(tileLayerRef.current);
 
-    const tileUrl = getTileUrl(tileTheme);
-    const tileSubdomains = tileTheme === 'osm' ? 'abc' : 'abcd';
-    const newTile = L.tileLayer(tileUrl, {
-      maxZoom: 19,
-      subdomains: tileSubdomains,
-      attribution: '&copy; CARTO / OpenStreetMap',
+    const config = getTileConfig(tileTheme, theme === 'dark');
+    const newTile = L.tileLayer(config.url, {
+      maxZoom: config.maxZoom,
+      subdomains: config.subdomains || 'abc',
+      attribution: config.attribution,
     }).addTo(mapInstanceRef.current);
 
     tileLayerRef.current = newTile;
-  }, [tileTheme]);
+  }, [tileTheme, theme]);
 
   // Update Target Marker & 500m Boundary Circle
   useEffect(() => {
@@ -311,11 +304,11 @@ export const ChargerMap: React.FC<ChargerMapProps> = ({
         {/* Layer Theme Switcher */}
         <button
           onClick={() => {
-            const next: TileLayerTheme = tileTheme === 'dark' ? 'voyager' : tileTheme === 'voyager' ? 'osm' : 'dark';
+            const next: TileLayerTheme = tileTheme === 'onemap' ? 'dark' : tileTheme === 'dark' ? 'osm' : 'onemap';
             setTileTheme(next);
           }}
           className="p-2.5 rounded-lg bg-[#13161C]/90 dark:bg-[#13161C]/90 light:bg-white/90 hover:bg-[#181c24] dark:hover:bg-[#181c24] light:hover:bg-slate-100 text-zinc-300 dark:text-zinc-300 light:text-slate-700 border border-white/10 dark:border-white/10 light:border-slate-200 shadow-lg backdrop-blur-md transition-all active:scale-95 text-xs flex items-center justify-center"
-          title={`Switch map theme (Current: ${tileTheme})`}
+          title={`Switch map theme (Current: ${tileTheme === 'onemap' ? 'OneMap SG (Official)' : tileTheme === 'dark' ? 'Night Canvas' : 'OpenStreetMap'})`}
         >
           <Layers className="w-4 h-4 text-zinc-300 dark:text-zinc-300 light:text-slate-700" />
         </button>
@@ -383,14 +376,32 @@ export const ChargerMap: React.FC<ChargerMapProps> = ({
   );
 };
 
-function getTileUrl(theme: TileLayerTheme): string {
+function getTileConfig(
+  theme: TileLayerTheme, 
+  isDark: boolean
+): { url: string; attribution: string; maxZoom: number; subdomains?: string } {
   switch (theme) {
     case 'dark':
-      return 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-    case 'voyager':
-      return 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+      return {
+        url: 'https://www.onemap.gov.sg/maps/tiles/Night/{z}/{x}/{y}.png',
+        attribution: '&copy; <a href="https://www.onemap.gov.sg/" target="_blank">OneMap</a> &copy; Singapore Land Authority &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 19,
+      };
+    case 'onemap':
+      return {
+        url: isDark
+          ? 'https://www.onemap.gov.sg/maps/tiles/Night/{z}/{x}/{y}.png'
+          : 'https://www.onemap.gov.sg/maps/tiles/Default/{z}/{x}/{y}.png',
+        attribution: '&copy; <a href="https://www.onemap.gov.sg/" target="_blank">OneMap</a> &copy; Singapore Land Authority',
+        maxZoom: 19,
+      };
     case 'osm':
     default:
-      return 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+      return {
+        url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19,
+        subdomains: 'abc',
+      };
   }
 }
